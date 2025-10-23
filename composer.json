@@ -1,0 +1,7 @@
+{
+    "require" : {
+        "php": "^8.0",
+        "paypal/paypal-checkout-sdk": "^1.0",
+        "tecnickcom/tcpdf": "^6.10"
+    }
+}
