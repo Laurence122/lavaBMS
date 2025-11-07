@@ -124,12 +124,17 @@ class PermitsController extends Controller {
 
         $status = $this->io->get('status');
 
-        if ($status && in_array($status, ['approved', 'rejected', 'pending_inspection', 'pending_payment'])) {
+        if ($status && in_array($status, ['approved', 'rejected', 'pending_inspection', 'pending_payment', 'paid'])) {
             $update_data = [
                 'status' => $status
             ];
 
             if ($status === 'approved') {
+                $update_data['claim_by_date'] = date('Y-m-d H:i:s', strtotime('+1 hour'));
+                $update_data['processed_at'] = date('Y-m-d H:i:s');
+            } elseif ($status === 'paid') {
+                // Allow approving from 'paid' to 'approved'
+                $update_data['status'] = 'approved';
                 $update_data['claim_by_date'] = date('Y-m-d H:i:s', strtotime('+1 hour'));
                 $update_data['processed_at'] = date('Y-m-d H:i:s');
             }

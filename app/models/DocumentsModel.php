@@ -37,6 +37,15 @@ class DocumentsModel extends Model {
                         ->get_all();
     }
 
+    public function get_documents_by_status($status)
+    {
+        return $this->db->table($this->table)
+                        ->select('documents.*, users.username')
+                        ->join('users', 'users.id = documents.user_id')
+                        ->where('status', $status)
+                        ->get_all();
+    }
+
     public function get_all_documents()
     {
         return $this->db->table($this->table)

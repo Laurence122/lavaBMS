@@ -138,7 +138,7 @@ class DocumentsController extends Controller {
 
         $status = $this->io->get('status');
 
-        if ($status && in_array($status, ['approved', 'rejected', 'pending'])) {
+        if ($status && in_array($status, ['approved', 'rejected', 'pending', 'paid'])) {
             $update_data = [
                 'status' => $status
             ];
@@ -147,6 +147,10 @@ class DocumentsController extends Controller {
                 // Set status to approved_pending_payment to require payment
                 $update_data['status'] = 'approved_pending_payment';
                 // Processed at will be set after payment
+            } elseif ($status === 'paid') {
+                // Allow approving from 'paid' to 'approved'
+                $update_data['status'] = 'approved';
+                $update_data['processed_at'] = date('Y-m-d H:i:s');
             }
 
             if ($this->DocumentsModel->update($id, $update_data)) {

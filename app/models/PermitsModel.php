@@ -33,6 +33,16 @@ class PermitsModel extends Model
             ->get_all();
     }
 
+    public function get_permits_by_status($status)
+    {
+        return $this->db->table($this->table)
+            ->select('permits.*, CONCAT(citizens.first_name, " ", citizens.last_name) as owner_name, users.username')
+            ->join('users', 'users.id = permits.user_id')
+            ->left_join('citizens', 'citizens.user_id = permits.user_id')
+            ->where('permits.status', $status)
+            ->get_all();
+    }
+
     public function get_all_permits()
     {
         return $this->db->table($this->table)

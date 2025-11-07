@@ -74,11 +74,11 @@ class PaymentController extends Controller {
 
             if ($this->PaymentModel->insert($payment_data)) {
                 if ($permit_id) {
-                    $this->PermitsModel->update($permit_id, ['status' => 'pending_inspection']);
+                    $this->PermitsModel->update($permit_id, ['status' => 'paid']);
                     $this->session->set_flashdata('success', 'PayPal payment completed successfully! Your permit application is now being processed.');
                 } elseif ($document_id) {
                     $this->call->model('DocumentsModel');
-                    $this->DocumentsModel->update($document_id, ['status' => 'approved']);
+                    $this->DocumentsModel->update($document_id, ['status' => 'paid']);
                     $this->session->set_flashdata('success', 'PayPal payment completed successfully! Your document is now ready for download.');
                 }
                 redirect('/dashboard');
@@ -114,13 +114,13 @@ class PaymentController extends Controller {
 
             if ($this->PaymentModel->insert($payment_data)) {
                 if ($permit_id) {
-                    // Update permit status to pending_inspection for cash payment
-                    $this->PermitsModel->update($permit_id, ['status' => 'pending_inspection']);
+                    // Update permit status to paid for cash payment
+                    $this->PermitsModel->update($permit_id, ['status' => 'paid']);
                     $this->session->set_flashdata('success', 'Cash payment selected. You will pay when you pick up your permit after approval.');
                 } elseif ($document_id) {
-                    // Update document status to approved for cash payment
+                    // Update document status to paid for cash payment
                     $this->call->model('DocumentsModel');
-                    $this->DocumentsModel->update($document_id, ['status' => 'approved']);
+                    $this->DocumentsModel->update($document_id, ['status' => 'paid']);
                     $this->session->set_flashdata('success', 'Cash payment selected. You will pay when you pick up your document.');
                 }
                 redirect('/dashboard');
@@ -216,14 +216,14 @@ class PaymentController extends Controller {
             if ($payment) {
                 if ($payment['permit_id']) {
                     $this->PermitsModel->update($payment['permit_id'], [
-                        'status' => 'pending_inspection'
+                        'status' => 'paid'
                     ]);
                     $this->session->set_flashdata('success', 'Payment completed successfully! Your permit application is now being processed.');
                     // Redirect to dashboard
                     redirect('/dashboard');
                 } elseif ($payment['document_id']) {
                     $this->call->model('DocumentsModel');
-                    $this->DocumentsModel->update($payment['document_id'], ['status' => 'approved']);
+                    $this->DocumentsModel->update($payment['document_id'], ['status' => 'paid']);
                     $this->session->set_flashdata('success', 'Payment completed successfully! Your document is now ready for download.');
                     // Redirect to dashboard
                     redirect('/dashboard');

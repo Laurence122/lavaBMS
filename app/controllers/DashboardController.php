@@ -38,6 +38,8 @@ class DashboardController extends Controller {
             $this->call->model('PermitsModel');
             $data['pending_documents'] = $this->DocumentsModel->get_pending_documents();
             $data['pending_permits'] = $this->PermitsModel->get_pending_permits();
+            $data['paid_documents'] = $this->DocumentsModel->get_documents_by_status('paid');
+            $data['paid_permits'] = $this->PermitsModel->get_permits_by_status('paid');
             $this->call->view('dashboard/staff', $data);
         } elseif ($role === 'citizen') {
             $this->call->model('DocumentsModel');
