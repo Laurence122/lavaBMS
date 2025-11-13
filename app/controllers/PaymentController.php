@@ -214,28 +214,32 @@ class PaymentController extends Controller {
             // Update permit or document status
             $payment = $this->PaymentModel->get_by_paypal_order_id($order_id);
             if ($payment) {
-                if ($payment['permit_id']) {
+                if (!empty($payment['permit_id'])) {
                     $this->PermitsModel->update($payment['permit_id'], [
                         'status' => 'paid'
                     ]);
                     $this->session->set_flashdata('success', 'Payment completed successfully! Your permit application is now being processed.');
-                    // Redirect to dashboard
-                    redirect('/dashboard');
-                } elseif ($payment['document_id']) {
+                } elseif (!empty($payment['document_id'])) {
                     $this->call->model('DocumentsModel');
                     $this->DocumentsModel->update($payment['document_id'], ['status' => 'paid']);
                     $this->session->set_flashdata('success', 'Payment completed successfully! Your document is now ready for download.');
-                    // Redirect to dashboard
-                    redirect('/dashboard');
+                } else {
+                    $this->session->set_flashdata('success', 'Payment completed successfully!');
                 }
+            } else {
+                $this->session->set_flashdata('error', 'Payment record not found. Please contact support.');
             }
 
         } catch (Exception $e) {
-            $this->PaymentModel->update_by_paypal_order_id($order_id, ['status' => 'failed']);
+            if ($order_id) {
+                $this->PaymentModel->update_by_paypal_order_id($order_id, ['status' => 'failed']);
+            }
             $this->session->set_flashdata('error', 'Payment processing failed: ' . $e->getMessage());
         }
 
+        // Always redirect to dashboard
         redirect('/dashboard');
+        exit;
     }
 
     public function cancel() {

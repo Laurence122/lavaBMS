@@ -79,7 +79,7 @@ $config['ENVIRONMENT']             = 'production';
 | WARNING: You MUST set this value!
 |
 */
-$config['base_url'] 				= 'https://lavabms-hostkeneme.onrender.com';
+$config['base_url'] 				= 'http://lavabms-hostkeneme.onrender.com';
 
 /*
 |--------------------------------------------------------------------------

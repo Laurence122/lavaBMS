@@ -94,4 +94,23 @@ class CitizensModel extends Model {
         $citizen = $this->get_citizen_by_user_id($user_id);
         return $citizen && isset($citizen['verification_status']) && $citizen['verification_status'] === 'verified';
     }
+
+    public function get_total_citizens_count()
+    {
+        $result = $this->db->table($this->table)
+                           ->select('COUNT(*) as total')
+                           ->get();
+        return $result ? (int)$result['total'] : 0;
+    }
+
+    public function get_pending_verifications_count()
+    {
+        $result = $this->db->table($this->table)
+                           ->select('COUNT(*) as total')
+                           ->where('national_id IS NOT NULL', null, false)
+                           ->where('national_id !=', '')
+                           ->where_in('verification_status', ['pending', null])
+                           ->get();
+        return $result ? (int)$result['total'] : 0;
+    }
 }

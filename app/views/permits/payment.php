@@ -117,10 +117,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         },
         onApprove: function(data, actions) {
-            window.location.href = '<?php echo BASE_URL; ?>/payment/approve?token=' + data.orderID;
+            // Capture the order and redirect to approval page
+            return actions.order.capture().then(function(details) {
+                // Redirect to approval endpoint with order ID
+                window.location.href = '<?php echo BASE_URL; ?>/payment/approve?token=' + data.orderID;
+            });
         },
         onCancel: function(data) {
-            window.location.href = '<?php echo BASE_URL; ?>/dashboard';
+            // Redirect to cancel page
+            window.location.href = '<?php echo BASE_URL; ?>/payment/cancel';
+        },
+        onError: function(err) {
+            // Handle errors
+            console.error('PayPal error:', err);
+            alert('An error occurred during payment. Please try again.');
         }
     }).render('#paypal-button-container');
 });

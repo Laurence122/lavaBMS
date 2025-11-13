@@ -10,4 +10,4 @@ ini_set('memory_limit', '1024M');
 
 // Change directory to the project root and load the main front controller
 chdir(dirname(__DIR__));
-require 'index.php';
+require dirname(__DIR__) . '/index.php';

@@ -300,7 +300,7 @@
                     <form id="setPickupTimeForm">
                         <div class="form-group">
                             <label for="pickupTime">Pickup Date & Time</label>
-                            <input type="datetime-local" class="form-control" id="pickupTime" name="pickup_time" required>
+                            <input type="datetime-local" class="form-control" id="pickupTime" name="pickup_time" required min="<?= date('Y-m-d\TH:i') ?>">
                         </div>
                         <input type="hidden" id="pickupDocumentId" name="document_id">
                     </form>

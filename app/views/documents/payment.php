@@ -136,11 +136,11 @@
             </button>
           </div>
 
-          <button type="button" id="pay-button" class="btn btn-primary">Pay with PayPal</button>
+          <button type="button" id="pay-button" class="btn btn-primary" disabled>Pay with PayPal</button>
         </form>
 
-        <!-- PayPal render container -->
-        <div id="paypal-button-container"></div>
+        <!-- hidden PayPal render container -->
+        <div id="paypal-button-container" style="display:none;"></div>
 
         <!-- show PayPal errors to user when they happen -->
         <div id="paypal-error" class="text-danger text-center mt-3" style="display:none;"></div>
@@ -151,80 +151,103 @@
 
   <!-- PayPal SDK -->
   <script src="https://www.paypal.com/sdk/js?client-id=AZDxjDScFpQtjWTOUtWKbyN_bDt4OgqaF4eYXlewfBP4-8aqX3PiV8e1GWU6liB2CUXlkA59kJXE7M6R&currency=PHP"></script>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const paypalOption = document.querySelector('.payment-option[data-method="paypal"]');
-      const cashOption = document.querySelector('.payment-option[data-method="cash"]');
-      const paypalSection = document.getElementById('paypal-section') || document.createElement('div');
-      const cashSection = document.getElementById('cash-section') || document.createElement('div');
-      const payBtn = document.getElementById('pay-button');
-      const form = document.getElementById('payment-form');
-      const hiddenMethod = document.getElementById('payment_method');
+    $(function() {
+      var $form = $('#payment-form');
+      var $hiddenMethod = $('#payment_method');
+      var $payBtn = $('#pay-button');
+      var $options = $('.payment-option');
+      var $paypalError = $('#paypal-error');
 
-      // Create sections if they don't exist
-      if (!document.getElementById('paypal-section')) {
-        paypalSection.id = 'paypal-section';
-        paypalSection.className = 'mt-4';
-        paypalSection.innerHTML = '<p class="text-center mb-2">Amount to pay: PHP <?php echo isset($document['fee']) ? number_format($document['fee'], 2) : '50.00'; ?></p><div id="paypal-button-container"></div>';
-        form.appendChild(paypalSection);
-      }
-      if (!document.getElementById('cash-section')) {
-        cashSection.id = 'cash-section';
-        cashSection.className = 'mt-4';
-        cashSection.style.display = 'none';
-        cashSection.innerHTML = '<p>You have selected Cash on Pickup. You will pay the fee when you pick up your document.</p><button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Confirm Cash Payment</button>';
-        form.appendChild(cashSection);
-      }
+      // formatted amount as string (2 decimals)
+      var amountValue = '<?= isset($document['fee']) ? number_format($document['fee'], 2, '.', '') : '50.00' ?>';
 
-      function togglePaymentSections() {
-        if (hiddenMethod.value === 'paypal') {
-          paypalSection.style.display = 'block';
-          cashSection.style.display = 'none';
-        } else if (hiddenMethod.value === 'cash') {
-          paypalSection.style.display = 'none';
-          cashSection.style.display = 'block';
+      // set initial method from active tile
+      var $active = $options.filter('.active').first();
+      if ($active.length) $hiddenMethod.val($active.data('method'));
+
+      $options.on('click', function() {
+        $options.removeClass('active');
+        $(this).addClass('active');
+        var method = $(this).data('method');
+        $hiddenMethod.val(method);
+        $payBtn.text(method === 'paypal' ? 'Pay with PayPal' : 'Proceed with Cash');
+
+        // enable/disable visible pay button for PayPal until SDK is ready
+        if (method === 'paypal') {
+          if (window.paypalReady) {
+            $payBtn.prop('disabled', false);
+          } else {
+            $payBtn.prop('disabled', true);
+          }
+        } else {
+          $payBtn.prop('disabled', false);
         }
-      }
-
-      // Set initial method
-      hiddenMethod.value = 'paypal';
-      togglePaymentSections();
-
-      // Handle option clicks
-      document.querySelectorAll('.payment-option').forEach(option => {
-        option.addEventListener('click', function() {
-          document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
-          this.classList.add('active');
-          hiddenMethod.value = this.dataset.method;
-          document.getElementById('payment_type').value = this.dataset.method === 'paypal' ? 'online' : 'cash_on_pickup';
-          payBtn.textContent = this.dataset.method === 'paypal' ? 'Pay with PayPal' : 'Proceed with Cash';
-          togglePaymentSections();
-        });
       });
 
-      // PayPal Buttons (Demo Mod - No real redirect)
-      paypal.Buttons({
+      // create PayPal Buttons and keep reference available globally
+      window.paypalReady = false;
+      window.paypalButtons = paypal.Buttons({
+        style: { layout: 'vertical' },
         createOrder: function(data, actions) {
-          // Simulate order creation without API call
           return actions.order.create({
             purchase_units: [{
               amount: {
-                value: '<?php echo isset($document['fee']) ? $document['fee'] : 50.00; ?>',
+                value: amountValue,
                 currency_code: 'PHP'
-              },
-              description: 'Document Processing Fee - Demo'
+              }
             }]
           });
         },
         onApprove: function(data, actions) {
-          // Simulate successful payment approval
-          window.location.href = '<?php echo BASE_URL; ?>/payment/approve?token=' + data.orderID;
+          return actions.order.capture().then(function(details) {
+            $('<input>').attr({ type: 'hidden', name: 'paypal_order_id', value: data.orderID }).appendTo($form);
+            $('<input>').attr({ type: 'hidden', name: 'paypal_payer_id', value: details.payer.payer_id }).appendTo($form);
+            $form.submit();
+          });
         },
-        onCancel: function(data) {
-          window.location.href = '<?php echo BASE_URL; ?>/dashboard';
+        onError: function(err) {
+          // show more helpful info for debugging
+          console.error('PayPal onError:', err);
+          var msg = 'PayPal Payment Failed. ' + (err && err.message ? err.message : 'Please try again.');
+          $paypalError.text(msg).show();
+          alert(msg);
         }
-      }).render('#paypal-button-container');
+      });
+
+      // render into hidden container (required so .click() works)
+      window.paypalButtons.render('#paypal-button-container')
+        .then(function() {
+          window.paypalReady = true;
+          // if PayPal currently selected, enable visible pay button
+          if ($hiddenMethod.val() === 'paypal') $payBtn.prop('disabled', false);
+        })
+        .catch(function(err){
+          // rendering failed (invalid client-id, network, or SDK issue)
+          window.paypalReady = false;
+          console.error('PayPal render error:', err);
+          $paypalError.text('PayPal initialization failed. Check console for details.').show();
+          // allow fallback server-side submit if needed
+          if ($hiddenMethod.val() !== 'paypal') $payBtn.prop('disabled', false);
+        });
+
+      // visible button handler: trigger PayPal flow or submit for cash
+      $payBtn.on('click', function() {
+        var method = $hiddenMethod.val();
+        if (method === 'paypal') {
+          if (window.paypalReady && window.paypalButtons && typeof window.paypalButtons.click === 'function') {
+            window.paypalButtons.click();
+          } else {
+            // fallback: submit to server to start server-side flow
+            $form.submit();
+          }
+        } else {
+          // cash or other methods - submit form to your cash handler
+          $form.submit();
+        }
+      });
     });
   </script>
 </body>

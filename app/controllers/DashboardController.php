@@ -27,11 +27,18 @@ class DashboardController extends Controller {
             $this->call->model('DocumentsModel');
             $this->call->model('PermitsModel');
             $this->call->model('StaffModel');
+            
+            // Get document and permit data
             $document_type_distribution = $this->DocumentsModel->get_document_type_distribution();
             $data['document_type_distribution'] = json_encode($document_type_distribution);
             $data['all_documents'] = $this->DocumentsModel->get_all_documents();
             $data['all_permits'] = $this->PermitsModel->get_all_permits();
             $data['staff_tasks'] = $this->StaffModel->get_all_tasks_with_staff_names();
+            
+            // Get citizen statistics
+            $data['total_citizens'] = $this->CitizensModel->get_total_citizens_count();
+            $data['pending_verifications'] = $this->CitizensModel->get_pending_verifications_count();
+            
             $this->call->view('dashboard/admin', $data);
         } elseif ($role === 'staff') {
             $this->call->model('DocumentsModel');

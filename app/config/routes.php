@@ -69,6 +69,7 @@ $router->get('/citizens', 'CitizensController::index');
 $router->match('/citizens/create', 'CitizensController::create', ['GET', 'POST']);
 $router->match('/citizens/update/{id}', 'CitizensController::update', ['GET', 'POST']);
 $router->get('/citizens/delete/{id}', 'CitizensController::delete');
+$router->get('/citizens/view/{id}', 'CitizensController::view');
 $router->match('/citizens/profile', 'CitizensController::profile', ['GET', 'POST']);
 $router->get('/citizens/verifications', 'CitizensController::verifications');
 $router->match('/citizens/verify/{id}', 'CitizensController::verify', ['GET', 'POST']);

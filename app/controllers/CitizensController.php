@@ -192,6 +192,33 @@ class CitizensController extends Controller {
         }
     }
 
+    public function view($id)
+    {
+        if (!$this->auth->is_logged_in() || (!$this->auth->is_admin() && !$this->auth->is_staff())) {
+            redirect('/auth/login');
+            exit;
+        }
+
+        $citizen = $this->CitizensModel->get_citizen_by_id($id);
+        
+        if (!$citizen) {
+            $this->session->set_flashdata('error', 'Citizen not found.');
+            redirect('/citizens');
+            exit;
+        }
+
+        $logged_in_user = [
+            'id' => $this->session->userdata('id'),
+            'username' => $this->session->userdata('username'),
+            'role' => $this->session->userdata('role')
+        ];
+        $data['logged_in_user'] = $logged_in_user;
+        $data['citizen'] = $citizen;
+        $data['is_admin_view'] = true;
+        
+        $this->call->view('citizens/profile', $data);
+    }
+
     public function profile()
     {
         if (!$this->auth->is_logged_in()) {

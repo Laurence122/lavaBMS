@@ -177,6 +177,7 @@
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Address</th>
+                                        <th>Verification Status</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -188,8 +189,26 @@
                                             <td><?= htmlspecialchars($citizen['phone']) ?></td>
                                             <td><?= htmlspecialchars($citizen['address']) ?></td>
                                             <td>
-                                                <a href="<?= site_url('citizens/update/' . $citizen['id']) ?>" class="btn btn-info btn-sm">Edit</a>
-                                                <a href="<?= site_url('citizens/delete/' . $citizen['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+                                                <?php if (isset($citizen['verification_status']) && $citizen['verification_status'] === 'verified'): ?>
+                                                    <span class="badge badge-success">Verified</span>
+                                                <?php elseif (isset($citizen['verification_status']) && $citizen['verification_status'] === 'rejected'): ?>
+                                                    <span class="badge badge-danger">Rejected</span>
+                                                <?php elseif (!empty($citizen['national_id'])): ?>
+                                                    <span class="badge badge-warning">Pending</span>
+                                                <?php else: ?>
+                                                    <span class="badge badge-secondary">No ID</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <a href="<?= site_url('citizens/view/' . $citizen['id']) ?>" class="btn btn-primary btn-sm" title="View Profile">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                                <a href="<?= site_url('citizens/update/' . $citizen['id']) ?>" class="btn btn-info btn-sm" title="Edit">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="<?= site_url('citizens/delete/' . $citizen['id']) ?>" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')" title="Delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </a>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

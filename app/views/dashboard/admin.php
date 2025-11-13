@@ -354,13 +354,19 @@
                     <a href="<?= site_url('dashboard') ?>"><i class="fas fa-tachometer-alt mr-3"></i>Dashboard</a>
                 </li>
                 <li>
+                    <a href="<?= site_url('citizens') ?>"><i class="fas fa-users mr-3"></i>Citizens</a>
+                </li>
+                <li>
+                    <a href="<?= site_url('citizens/verifications') ?>"><i class="fas fa-id-card mr-3"></i>ID Verifications</a>
+                </li>
+                <li>
                     <a href="<?= site_url('documents') ?>"><i class="fas fa-file-alt mr-3"></i>Documents</a>
                 </li>
                 <li>
                     <a href="<?= site_url('permits') ?>"><i class="fas fa-certificate mr-3"></i>Permits</a>
                 </li>
                 <li>
-                    <a href="<?= site_url('users') ?>"><i class="fas fa-users mr-3"></i>Users</a>
+                    <a href="<?= site_url('users') ?>"><i class="fas fa-users-cog mr-3"></i>Users</a>
                 </li>
                 <li>
                     <a href="<?= site_url('auth/logout') ?>"><i class="fas fa-sign-out-alt mr-3"></i>Logout</a>
@@ -383,7 +389,7 @@
 
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card stat-card" style="background: linear-gradient(to right, #ff9966, #ff5e62); color: #fff;">
                             <div class="card-body">
                                 <div>
@@ -394,7 +400,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
                         <div class="card stat-card" style="background: linear-gradient(to right, #64b5f6, #2196f3); color: #fff;">
                             <div class="card-body">
                                 <div>
@@ -405,14 +411,63 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-4">
+                    <div class="col-md-3 mb-4">
+                        <div class="card stat-card" style="background: linear-gradient(to right, #4caf50, #2e7d32); color: #fff;">
+                            <div class="card-body">
+                                <div>
+                                    <h3><?= isset($total_citizens) ? $total_citizens : 0 ?></h3>
+                                    <p>Total Citizens</p>
+                                </div>
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-4">
                         <div class="card stat-card" style="background: linear-gradient(to right, #ffc107, #ff8f00); color: #fff;">
                             <div class="card-body">
                                 <div>
-                                    <h3><?= count($staff_tasks) ?></h3>
-                                    <p>Staff Tasks</p>
+                                    <h3><?= isset($pending_verifications) ? $pending_verifications : 0 ?></h3>
+                                    <p>Pending IDs</p>
                                 </div>
-                                <i class="fas fa-tasks"></i>
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions Section -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <i class="fas fa-bolt mr-2"></i>Quick Actions
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <a href="<?= site_url('citizens') ?>" class="btn btn-primary btn-block btn-lg">
+                                            <i class="fas fa-users mr-2"></i>View All Citizens
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="<?= site_url('citizens/verifications') ?>" class="btn btn-warning btn-block btn-lg">
+                                            <i class="fas fa-id-card mr-2"></i>ID Verifications
+                                            <?php if (isset($pending_verifications) && $pending_verifications > 0): ?>
+                                                <span class="badge badge-danger"><?= $pending_verifications ?></span>
+                                            <?php endif; ?>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="<?= site_url('documents') ?>" class="btn btn-info btn-block btn-lg">
+                                            <i class="fas fa-file-alt mr-2"></i>Manage Documents
+                                        </a>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <a href="<?= site_url('permits') ?>" class="btn btn-success btn-block btn-lg">
+                                            <i class="fas fa-certificate mr-2"></i>Manage Permits
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
